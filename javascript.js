@@ -3,87 +3,105 @@ let num2 = null;
 let operator = null;
 let shouldResetScreen = false;
 
-const displayNumber = document.getElementById('displayNumber');
-const num2Container = document.getElementById('num2-container');
+let displayNumber = document.getElementById('displayNumber');
 const numButtons = document.querySelectorAll('.number-button');
 const operatorButtons = document.querySelectorAll('.operator-button');
 const equalsButton = document.getElementById('button-equals');
-const clearButton = document.getElementById('button-clear');
 
 equalsButton.addEventListener('click', getResult);
-clearButton.addEventListener('click', clearDisplay);
-
-numButtons.forEach((button) =>
-  button.addEventListener('click', () => appendDisplay(button.textContent)),
-);
-
+numButtons.forEach((button) => button.addEventListener('click', appendDisplay));
 operatorButtons.forEach((button) =>
-  button.addEventListener('click', () => setOperator(button.textContent)),
+  button.addEventListener('click', setOperator),
 );
 
-function appendDisplay(number) {
+//updates display based on button click
+function appendDisplay(e) {
   if (
-    displayNumber.textContent === '0' ||
-    shouldResetScreen ||
-    displayNumber.textContent === 'Error'
+    displayNumber.textContent == 0 ||
+    shouldResetScreen == true ||
+    displayNumber.textContent == 'Error'
   ) {
-    displayNumber.textContent = number;
+    displayNumber.textContent = e.target.textContent;
     shouldResetScreen = false;
   } else {
-    displayNumber.textContent += number;
+    displayNumber.textContent += e.target.textContent;
   }
 }
 
-function setOperator(newOperator) {
-  if (operator !== null && !shouldResetScreen) {
-    evaluate();
+//sets operator LUL
+function setOperator(e) {
+  if (operator == null) {
+    operator = e.target.textContent;
+    num1 = Number(displayNumber.textContent);
+    shouldResetScreen = true;
+    console.log(num1);
+    console.log(operator);
+  } else if (operator !== null) {
+    num2 = Number(displayNumber.textContent);
+    console.log(num2);
+    let result = operate(num1, operator, num2);
+    displayNumber.textContent = result;
+    operator = e.target.textContent;
+    num1 = result;
+    shouldResetScreen = true;
+    console.log('=' + ' ' + result);
   }
-  num1 = Number(displayNumber.textContent);
-  operator = newOperator;
-  num2Container.textContent = `${num1} ${operator}`;
-  shouldResetScreen = true;
 }
 
-function evaluate() {
-  if (operator === null || shouldResetScreen) return;
-  num2 = Number(displayNumber.textContent);
-  const result = operate(num1, operator, num2);
-  displayNumber.textContent = result;
-  num1 = result;
-  num2Container.textContent = `${num1} ${operator}`;
-}
-
-function getResult() {
-  if (num1 === null || operator === null) return;
-  num2 = Number(displayNumber.textContent);
-  const result = operate(num1, operator, num2);
-  displayNumber.textContent = result;
-  num2Container.textContent = '';
-  num1 = null;
-  operator = null;
-  shouldResetScreen = true;
-}
+// clear button/function
+const clearButton = document.getElementById('button-clear');
+clearButton.addEventListener('click', clearDisplay);
 
 function clearDisplay() {
+  shouldResetScreen = false;
   num1 = null;
   num2 = null;
   operator = null;
-  displayNumber.textContent = '0';
-  num2Container.textContent = '';
-  shouldResetScreen = false;
+  displayNumber.textContent = 0;
 }
 
-function operate(a, op, b) {
-  switch (op) {
-    case '+':
-      return a + b;
-    case '-':
-      return a - b;
-    case '*':
-      return a * b;
-    case '/':
-      return b === 0 ? 'Error' : a / b;
-    default:
-      return b;
+// //these are the seperate math functions
+function add(a, b) {
+  return a + b;
+}
+
+function subtract(a, b) {
+  return a - b;
+}
+
+function multiply(a, b) {
+  return a * b;
+}
+
+function divide(a, b) {
+  return a / b;
+}
+
+//this function does the operation
+function operate(a, b, c) {
+  if (b == '-') {
+    return subtract(a, c);
+  } else if (b == '+') {
+    return add(a, c);
+  } else if (b == '/' && c !== 0) {
+    return divide(a, c);
+  } else if (b == '/' && c == 0) {
+    return 'Error';
+  } else if (b == '*') {
+    return multiply(a, c);
   }
+}
+
+function getResult() {
+  if (num1 === null || operator === null) {
+    return;
+  }
+  console.log(num1);
+  num2 = Number(displayNumber.textContent);
+  console.log(num2);
+  let result = operate(num1, operator, num2);
+  console.log(result);
+  displayNumber.textContent = result;
+  operator = null;
+  shouldResetScreen = true;
 }
